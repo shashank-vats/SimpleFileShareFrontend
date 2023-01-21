@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Simple File Share</title>
+    </head>
+    <body>
+        <h3>Simple File Share</h3>
+        <h5>A simple application to share your files</h5>
+        <h6>Upload your file here and share the link</h6>
+        <input type="file" id="file">
+        <script>
+            const $input = document.querySelector("#file");
+            $input.addEventListener('change', event => {
+                const data = new FormData();
+                data.append('file', event.target.files[0]);
+                fetch('/upload', {
+                    method: 'post',
+                    body: data
+                }).then(res => res.text()).then(res => {
+                    const log = document.createElement('p');
+                    log.innerHTML = res;
+                    document.body.appendChild(log);
+                })
+            })
+        </script>
+    </body>
+</html>
