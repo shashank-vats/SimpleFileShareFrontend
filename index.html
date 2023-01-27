@@ -13,7 +13,7 @@
             $input.addEventListener('change', event => {
                 const data = new FormData();
                 data.append('file', event.target.files[0]);
-                fetch('/upload', {
+                fetch('http://0.0.0.0:8080/api/files', {
                     method: 'post',
                     body: data
                 }).then(res => res.text()).then(res => {
