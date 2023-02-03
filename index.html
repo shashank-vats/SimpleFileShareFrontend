@@ -6,22 +6,68 @@
     <body>
         <h3>Simple File Share</h3>
         <h5>A simple application to share your files</h5>
+        <hr />
         <h6>Upload your file here and share the link</h6>
-        <input type="file" id="file">
+        <input type="file" id="upload" />
+        <br />
+        <br />
+        <hr />
+        <h6>Paste the link of file that you want to delete</h6>
+        <input type="url" id="delete_url"/> <input type="button" id="delete_button" value="Delete" />
+        <hr />
         <script>
-            const $input = document.querySelector("#file");
+            const LOCAL = false;
+            var baseUrl = '';
+            if (LOCAL) {
+                baseUrl = 'http://0.0.0.0:8080/api'
+            } else {
+                baseUrl = 'http://simplefileshare-env.eba-rv8hs4tm.ap-south-1.elasticbeanstalk.com/api'
+            }
+            const BASE_URL = baseUrl;
+            const API_RESULT_P_ID = "api_result";
+
+            function showApiResponse(res) {
+                console.log("Received response from the api");
+                const log = document.createElement('p');
+                log.id = API_RESULT_P_ID;
+                log.innerHTML = res;
+                document.body.appendChild(log);
+            }
+
+            function deleteOldApiResponse() {
+                const oldLog = document.getElementById(API_RESULT_P_ID);
+                if (oldLog != null) {
+                    document.body.removeChild(oldLog);
+                    console.log("Old api response deleted");
+                }
+            }
+
+            const $input = document.querySelector("#upload");
             $input.addEventListener('change', event => {
+                deleteOldApiResponse();
                 const data = new FormData();
                 data.append('file', event.target.files[0]);
-                fetch('http://0.0.0.0:8080/api/files', {
+                console.log("Uploading file");
+                fetch(BASE_URL + '/files', {
                     method: 'post',
                     body: data
                 }).then(res => res.text()).then(res => {
-                    const log = document.createElement('p');
-                    log.innerHTML = res;
-                    document.body.appendChild(log);
+                    $input.value = null;
+                    showApiResponse(res);
                 })
             })
+
+            const deleteButton = document.getElementById("delete_button");
+            deleteButton.addEventListener('click', event => {
+                const urlToDelete = document.querySelector('#delete_url').value;
+                deleteOldApiResponse();
+                fetch(BASE_URL + '/files?url=' + urlToDelete, {
+                    method: 'delete'
+                }).then(res => res.text()).then(res => {
+                    showApiResponse(res);
+                })
+            })
+            
         </script>
     </body>
 </html>
